@@ -1,0 +1,24 @@
+name: geolocation
+description: >-
+  Flutter plugin for location / geolocation / GPS. Supports iOS and Android. 
+  Multiple settings for speed, precision, battery optimization, continuous updates in background, etc.
+version: 1.1.2
+homepage: https://github.com/loup-v/geolocation/
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  streams_channel: ^0.3.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: app.loup.geolocation
+        pluginClass: GeolocationPlugin
+      ios:
+        pluginClass: GeolocationPlugin
