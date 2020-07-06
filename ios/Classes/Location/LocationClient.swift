@@ -9,7 +9,7 @@ import CoreLocation
 class LocationClient : NSObject, CLLocationManagerDelegate {
     
     private let locationManager = CLLocationManager()
-    private var permissionCallbacks: Array<Callback<Void, Void>> = []
+    private var permissionCallbacks: Array<(Permission, Callback<Void, Void>)> = []
     private var permissionSettingsCallback: (() -> Void)? = nil
     
     private var locationUpdatesCallback: LocationUpdatesCallback? = nil
@@ -150,44 +150,23 @@ class LocationClient : NSObject, CLLocationManagerDelegate {
     
     // Service status
     
-    private func runWithValidServiceStatus<T>(with permission: Permission, success: @escaping () -> Void, failure: @escaping (Result<T>) -> Void) {
-        let permissionRequest = PermissionRequest(value: permission, openSettingsIfDenied: false)
-        runWithValidServiceStatus(with: permissionRequest, success: success, failure: failure)
-    }
-    
-    private func runWithValidServiceStatus<T>(with permission: PermissionRequest, success: @escaping () -> Void, failure: @escaping (Result<T>) -> Void) {
-        let status: ServiceStatus<T> = currentServiceStatus(with: permission.value)
-        
-        if status.isReady {
-            success()
+    func runWithValidServiceStatus<T>(with permission: Permission, success: @escaping () -> Void, failure: @escaping (Result<T>) -> Void) {
+      let status: ServiceStatus<T> = currentServiceStatus(with: permission)
+      
+      if status.isReady {
+        success()
+      } else {
+        if let permission = status.needsAuthorization {
+          let callback = Callback<Void, Void>(
+            success: { _ in success() },
+            failure: { _ in failure(Result<T>.failure(of: .permissionDenied)) }
+          )
+          permissionCallbacks.append((permission, callback))
+          locationManager.requestAuthorization(for: permission)
         } else {
-            if let permission = status.needsAuthorization {
-                let callback = Callback<Void, Void>(
-                    success: { _ in success() },
-                    failure: { _ in failure(Result<T>.failure(of: .permissionDenied)) }
-                )
-                permissionCallbacks.append(callback)
-                locationManager.requestAuthorization(for: permission)
-            } else {
-                if #available(iOS 10.0, *),
-                    status.failure!.error!.type == .permissionDenied,
-                    permission.openSettingsIfDenied,
-                    let appSettingURl = URL(string: UIApplication.openSettingsURLString),
-                    UIApplication.shared.canOpenURL(appSettingURl) {
-                    permissionSettingsCallback = {
-                        let refreshedStatus: ServiceStatus<T> = self.currentServiceStatus(with: permission.value)
-                        if refreshedStatus.isReady {
-                            success()
-                        } else {
-                            failure(refreshedStatus.failure!)
-                        }
-                    }
-                    UIApplication.shared.openURL(appSettingURl)
-                } else {
-                    failure(status.failure!)
-                }
-            }
+          failure(status.failure!)
         }
+      }
     }
     
     private func currentServiceStatus<T>(with permission: Permission) -> ServiceStatus<T> {
@@ -224,14 +203,14 @@ class LocationClient : NSObject, CLLocationManagerDelegate {
     // CLLocationManagerDelegate
     
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        permissionCallbacks.forEach { action in
-            if permission.statusIsSufficient(status) {
-              action.success(())
-            } else {
-              action.failure(())
-            }
+      permissionCallbacks.forEach { (permission, action) in
+        if permission.statusIsSufficient(status) {
+          action.success(())
+        } else {
+          action.failure(())
         }
-        permissionCallbacks.removeAll()
+      }
+      permissionCallbacks.removeAll()
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
