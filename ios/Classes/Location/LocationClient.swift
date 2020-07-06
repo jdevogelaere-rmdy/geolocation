@@ -194,8 +194,8 @@ class LocationClient : NSObject, CLLocationManagerDelegate {
         guard CLLocationManager.locationServicesEnabled() else {
             return ServiceStatus<T>(isReady: false, needsAuthorization: nil, failure: Result<T>.failure(of: .serviceDisabled))
         }
-        
-        switch CLLocationManager.authorizationStatus() {
+        let status = CLLocationManager.authorizationStatus()
+        switch status {
         case .notDetermined:
             guard locationManager.isPermissionDeclared(for: permission) else {
                 return ServiceStatus<T>(isReady: false, needsAuthorization: nil, failure: Result<T>.failure(of: .runtime, message: "Missing location usage description values in Info.plist. See readme for details.", fatal: true))
