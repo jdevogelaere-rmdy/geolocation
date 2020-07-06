@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 enum Permission: String, Codable {
   case whenInUse = "whenInUse"
