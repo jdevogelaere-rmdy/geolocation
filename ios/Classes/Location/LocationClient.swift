@@ -37,7 +37,7 @@ class LocationClient : NSObject, CLLocationManagerDelegate {
         return status.isReady ? Result<Bool>.success(with: true) : status.failure!
     }
     
-    func requestLocationPermission(with permission: PermissionRequest, _ callback: @escaping (Result<Bool>) -> Void) {
+    func requestLocationPermission(with permission: Permission, _ callback: @escaping (Result<Bool>) -> Void) {
         runWithValidServiceStatus(with: permission, success: {
             callback(Result<Bool>.success(with: true))
         }, failure: { result in
