@@ -194,6 +194,7 @@ class LocationClient : NSObject, CLLocationManagerDelegate {
         guard CLLocationManager.locationServicesEnabled() else {
             return ServiceStatus<T>(isReady: false, needsAuthorization: nil, failure: Result<T>.failure(of: .serviceDisabled))
         }
+        let locationPermission = permission
         let status = CLLocationManager.authorizationStatus()
         switch status {
         case .notDetermined:
@@ -207,7 +208,7 @@ class LocationClient : NSObject, CLLocationManagerDelegate {
         case .restricted:
             return ServiceStatus<T>(isReady: false, needsAuthorization: nil, failure: Result<T>.failure(of: .serviceDisabled))
         case .authorizedWhenInUse:
-            if permission.statusIsSufficient(status) {
+            if locationPermission.statusIsSufficient(status) {
               return ServiceStatus<T>(isReady: true, needsAuthorization: nil, failure: nil)
             } else {
               return ServiceStatus<T>(isReady: false, needsAuthorization: nil, failure: Result<T>.failure(of: .permissionDenied))
