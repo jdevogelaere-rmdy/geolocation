@@ -38,7 +38,7 @@ class Handler {
     flutterResult(Codec.encode(result: locationClient.isLocationOperational(with: permission)))
   }
   
-  private func requestLocationPermission(permission: PermissionRequest, on flutterResult: @escaping FlutterResult) {
+  private func requestLocationPermission(permission: Permission, on flutterResult: @escaping FlutterResult) {
     locationClient.requestLocationPermission(with: permission) { result in
       flutterResult(Codec.encode(result: result))
     }

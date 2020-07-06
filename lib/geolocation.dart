@@ -75,14 +75,10 @@ class Geolocation {
   ///
   ///  * [LocationPermission], which describes what are the available permissions
   ///  * [GeolocationResult], the result you can expect from this request.
-  static Future<GeolocationResult> requestLocationPermission({
+    static Future<GeolocationResult> requestLocationPermission([
     LocationPermission permission = const LocationPermission(),
-    bool openSettingsIfDenied = true,
-  }) =>
-      _locationChannel.requestLocationPermission(_PermissionRequest(
-        permission,
-        openSettingsIfDenied: openSettingsIfDenied,
-      ));
+  ]) =>
+      _locationChannel.requestLocationPermission(permission);
 
   /// Retrieves the most recent [Location] currently available.
   /// Automatically request location [permission] beforehand if not granted.
