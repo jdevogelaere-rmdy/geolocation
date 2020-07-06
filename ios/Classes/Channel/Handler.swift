@@ -22,7 +22,7 @@ class Handler {
     case "isLocationOperational":
       isLocationOperational(permission: Codec.decodePermission(from: call.arguments), on: result)
     case "requestLocationPermission":
-      requestLocationPermission(permission: Codec.decodePermissionRequest(from: call.arguments), on: result)
+      requestLocationPermission(permission: Codec.decodePermission(from: call.arguments), on: result)
     case "lastKnownLocation":
       lastKnownLocation(permission: Codec.decodePermission(from: call.arguments), on: result)
     case "addLocationUpdatesRequest":
