@@ -51,7 +51,7 @@ class _LocationChannel {
       _loggingTag,
       _channel,
       'requestLocationPermission',
-      _Codec.encodePermissionRequest(request),
+      _Codec.encodeLocationPermission(permission));
     );
     return _Codec.decodeResult(response);
   }
