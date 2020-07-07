@@ -46,7 +46,7 @@ class _LocationChannel {
   }
 
   Future<GeolocationResult> requestLocationPermission(
-      _PermissionRequest request) async {
+      LocationPermission permission) async {
     final response = await _invokeChannelMethod(
       _loggingTag,
       _channel,
